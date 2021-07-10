@@ -162,6 +162,7 @@ namespace Solid
      * denotes sigma_{ij} at vertex k.
      */
     mutable std::vector<std::vector<Vector<double>>> strain, stress;
+    mutable std::vector<Vector<double>> cellwise_stress;
 
     Utils::Time time;
     mutable TimerOutput timer;

@@ -55,6 +55,7 @@ namespace Solid
        * Assembles lhs and rhs. At time step 0, the lhs is the mass matrix;
        * at all the following steps, it is \f$ M + \beta{\Delta{t}}^2K \f$.
        */
+
       void assemble_system(bool is_initial);
 
       /**

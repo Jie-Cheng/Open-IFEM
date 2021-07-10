@@ -445,10 +445,16 @@ namespace Solid
 
       Vector<double> localized_current_displacement(current_displacement);
 
+      for (unsigned int i = 0; i < cellwise_stress.size(); ++i)
+        {
+          cellwise_stress[i].reinit(triangulation.n_active_cells());
+        }
+
       for (; cell != dof_handler.end(); ++cell, ++scalar_cell)
         {
           if (cell->subdomain_id() == this_mpi_process)
             {
+              std::vector<double> tmp_cell_stress(6, 0.0);
               fe_values.reinit(cell);
               fe_values[displacements].get_function_gradients(
                 localized_current_displacement, current_displacement_gradients);
@@ -479,8 +485,23 @@ namespace Solid
                           quad_stress[i][j][q] = tmp_stress[i][j];
                         }
                     }
+                  tmp_cell_stress[0] += (0.25 * quad_stress[0][0][q]);
+                  tmp_cell_stress[1] += (0.25 * quad_stress[0][1][q]);
+                  tmp_cell_stress[2] += (0.25 * quad_stress[1][1][q]);
+
+                  if (dim == 3)
+                    {
+                      tmp_cell_stress[3] += (0.25 * quad_stress[0][2][q]);
+                      tmp_cell_stress[4] += (0.25 * quad_stress[1][2][q]);
+                      tmp_cell_stress[5] += (0.25 * quad_stress[2][2][q]);
+                    }
                 }
 
+              for (unsigned int i = 0; i < cellwise_stress.size(); ++i)
+                {
+                  cellwise_stress[i][cell->active_cell_index()] =
+                    tmp_cell_stress[i];
+                }
               for (unsigned int i = 0; i < dim; ++i)
                 {
                   for (unsigned int j = 0; j < dim; ++j)
